@@ -16,7 +16,7 @@ COMING WEEKS WE'LL WRITE A TUTORIAL ON HOW BEST TO DO THIS.
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Example CorDapp</title>
+    <title>NDA Example CorDapp</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
@@ -35,12 +35,12 @@ COMING WEEKS WE'LL WRITE A TUTORIAL ON HOW BEST TO DO THIS.
         <div class="navbar-header">
             <a class="navbar-brand" href="#">{{demoApp.thisNode}}</a>
         </div>
-        <button ng-click="demoApp.openModal()" type="button" class="btn btn-primary navbar-btn">Create IOU</button>
+        <button ng-click="demoApp.openModal()" type="button" class="btn btn-primary navbar-btn">Create NDA</button>
     </div>
 </nav>
 <script type="text/ng-template" id="demoAppModal.html">
     <div class="modal-header">
-        <h4 class="modal-title">Add new IOU</h4>
+        <h4 class="modal-title">Add new NDA</h4>
     </div>
     <form>
         <div class="modal-body">
@@ -51,20 +51,47 @@ COMING WEEKS WE'LL WRITE A TUTORIAL ON HOW BEST TO DO THIS.
                 </select>
             </div>
             <div class="form-group">
-                <label for="value" class="control-label">Value (Int):</label>
-                <input type="text" ng-model="modalInstance.form.value" class="form-control" id="value">
+                <label for="counterpartyEntity" class="control-label">Counterparty Entity:</label>
+                <input type="text" ng-model="modalInstance.form.counterpartyEntity" class="form-control" id="counterpartyEntity">
             </div>
+            <div class="form-group">
+                <label for="startDate" class="control-label">Start Date (Date):</label>
+                <input type="date" ng-model="modalInstance.form.startDate" class="form-control" id="startDate">
+            </div>
+            <div class="form-group">
+                <label for="expiryDate" class="control-label">Expiry Date (Date):</label>
+                <input type="date" ng-model="modalInstance.form.expiryDate" class="form-control" id="expiryDate">
+            </div>
+            <div class="form-group">
+                <label for="jurisdiction" class="control-label">Jurisdiction :</label>
+                <input type="text" ng-model="modalInstance.form.jurisdiction" class="form-control" id="jurisdiction">
+            </div>
+            <div class="form-group">
+                <label for="ndaState" class="control-label">NDA State:</label>
+                <select ng-model="modalInstance.form.ndaState" class="form-control" id="ndaState"
+                        ng-options="ndaState as ndaState for ndaState in modalInstance.ndaStates">
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="keywords" class="control-label">Keywords :</label>
+                <input type="text" ng-model="modalInstance.form.keywords" class="form-control" id="keywords">
+            </div>
+            <div class="form-group">
+                <label for="terms" class="control-label">Legal Terms of NDA:</label>
+                <input type="text" ng-model="modalInstance.form.terms" class="form-control" id="terms">
+            </div>
+
             <div ng-show="modalInstance.formError" class="form-group">
                 <div class="alert alert-danger" role="alert">
                     <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
                     <span class="sr-only">Error:</span>
-                    Enter valid IOU parameters
+                    Enter valid NDA parameters
                 </div>
             </div>
         </div>
         <div class="modal-footer">
             <button ng-click="modalInstance.cancel()" type="button" class="btn btn-default">Close</button>
-            <button ng-click="modalInstance.create()" type="button" class="btn btn-primary">Create IOU</button>
+            <button ng-click="modalInstance.create()" type="button" class="btn btn-primary">Create NDA</button>
         </div>
     </form>
 </script>
@@ -77,23 +104,29 @@ COMING WEEKS WE'LL WRITE A TUTORIAL ON HOW BEST TO DO THIS.
 <div class="row">
     <div class="col-md-1"></div>
     <div class="col-md-10">
-        <div ng-show="!demoApp.ious.length" class="panel panel-primary">
+        <div ng-show="!demoApp.ndas.length" class="panel panel-primary">
             <div class="panel-heading">
-                <h3 class="panel-title">There are no recorded IOUs</h3>
+                <h3 class="panel-title">There are no recorded NDAs</h3>
             </div>
-            <div class="panel-body">Use the "Create IOU" button to send an IOU to a peer.</div>
+            <div class="panel-body">Use the "Create NDA" button to send an NDA to a peer.</div>
         </div>
-        <div ng-show="demoApp.ious.length" class="panel panel-primary">
+        <div ng-show="demoApp.ndas.length" class="panel panel-primary">
             <div class="panel-heading">
-                <h3 class="panel-title">Recorded IOUs:</h3>
+                <h3 class="panel-title">Recorded NDAs:</h3>
             </div>
         </div>
-        <div ng-repeat="iou in demoApp.ious" class="panel panel-default">
+        <div ng-repeat="nda in demoApp.ndas" class="panel panel-default">
             <div class="panel-body">
                 <ul>
-                    <li>Lender: {{iou.lender}}</li>
-                    <li>Borrower: {{iou.borrower}}</li>
-                    <li>Value: {{iou.value}}</li>
+                    <li>Issuer: {{nda.issuer}}</li>
+                    <li>Counterparty: {{nda.counterparty}}</li>
+                    <li>Counterparty Entity: {{nda.counterpartyEntity}}</li>
+                    <li>Start Date: {{nda.startDate}}</li>
+                    <li>Expiry Date: {{nda.expiryDate}}</li>
+                    <li>NDA State: {{nda.state}}</li>
+                    <li>Jurisdiction: {{nda.jurisdiction}}</li>
+                    <li>Keywords: {{nda.keywords}}</li>
+                    <li>Terms: {{nda.terms}}</li>
                 </ul>
             </div>
         </div>

@@ -27,12 +27,15 @@ app.controller('DemoAppController', function($http, $location, $uibModal) {
     const demoApp = this;
 
     // We identify the node.
-    const apiBaseURL = "/api/example/";
+    const apiBaseURL = "/api/NDAexample/";
     let peers = [];
+    let ndaStates = [];
 
     $http.get(apiBaseURL + "me").then((response) => demoApp.thisNode = response.data.me);
 
     $http.get(apiBaseURL + "peers").then((response) => peers = response.data.peers);
+
+    $http.get(apiBaseURL + "ndaStates").then((response) => ndaStates = response.data);
 
     demoApp.openModal = () => {
         const modalInstance = $uibModal.open({
@@ -42,29 +45,31 @@ app.controller('DemoAppController', function($http, $location, $uibModal) {
             resolve: {
                 demoApp: () => demoApp,
                 apiBaseURL: () => apiBaseURL,
-                peers: () => peers
+                peers: () => peers,
+                ndaStates: () => ndaStates
             }
         });
 
         modalInstance.result.then(() => {}, () => {});
     };
 
-    demoApp.getIOUs = () => $http.get(apiBaseURL + "ious")
-        .then((response) => demoApp.ious = Object.keys(response.data)
+    demoApp.getNDAs = () => $http.get(apiBaseURL + "ndas")
+        .then((response) => demoApp.ndas = Object.keys(response.data)
             .map((key) => response.data[key].state.data)
             .reverse());
 
-    demoApp.getIOUs();
+    demoApp.getNDAs();
 });
 
-app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstance, $uibModal, demoApp, apiBaseURL, peers) {
+app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstance, $uibModal, demoApp, apiBaseURL, peers,ndaStates) {
     const modalInstance = this;
 
     modalInstance.peers = peers;
+    modalInstance.ndaStates = ndaStates;
     modalInstance.form = {};
     modalInstance.formError = false;
 
-    // Validate and create IOU.
+    // Validate and create NDA.
     modalInstance.create = () => {
         if (invalidFormInput()) {
             modalInstance.formError = true;
@@ -73,13 +78,30 @@ app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstanc
 
             $uibModalInstance.close();
 
-            const createIOUEndpoint = `${apiBaseURL}create-iou?partyName=${modalInstance.form.counterparty}&iouValue=${modalInstance.form.value}`;
+            const expDate = modalInstance.form.expiryDate;
+            //var dateStr = modalInstance.form.expiryDate.getFullYear() + '-' + modalInstance.form.expiryDate.getMonth() + '-' + modalInstance.form.expiryDate.getDate();
+            const expDateStr = expDate.getFullYear() + '-' + expDate.getMonth() + '-' + expDate.getDate();
+
+            const stDate = modalInstance.form.startDate;
+            const stDateStr =  stDate.getFullYear() + '-' + stDate.getMonth() + '-' + stDate.getDate();
+
+            const counterparty = modalInstance.form.counterparty;
+            const terms = modalInstance.form.terms;
+            const counterpartyEntity = modalInstance.form.counterpartyEntity;
+
+            const state = modalInstance.form.ndaState;
+            const juris = modalInstance.form.jurisdiction;
+            const keywords = modalInstance.form.keywords;
+
+            //alert('terms ' + terms);
+
+            const createNDAEndpoint = `${apiBaseURL}create-nda?partyName=${counterparty}&expiryDate=${expDateStr}&partyNameEntity=${counterpartyEntity}&terms=${terms}&startDate=${stDateStr}&state=${state}&juris=${juris}&keywords=${keywords}`;
 
             // Create PO and handle success / fail responses.
-            $http.put(createIOUEndpoint).then(
+            $http.put(createNDAEndpoint).then(
                 (result) => {
                     modalInstance.displayMessage(result);
-                    demoApp.getIOUs();
+                    demoApp.getNDAs();
                 },
                 (result) => {
                     modalInstance.displayMessage(result);
@@ -100,12 +122,14 @@ app.controller('ModalInstanceCtrl', function ($http, $location, $uibModalInstanc
         modalInstanceTwo.result.then(() => {}, () => {});
     };
 
-    // Close create IOU modal dialogue.
+    // Close create NDA modal dialogue.
     modalInstance.cancel = () => $uibModalInstance.dismiss();
 
-    // Validate the IOU.
+    // Validate the NDA.
     function invalidFormInput() {
-        return isNaN(modalInstance.form.value) || (modalInstance.form.counterparty === undefined);
+        return isNaN(modalInstance.form.expiryDate) || (modalInstance.form.counterparty === undefined)
+        || (modalInstance.form.counterpartyEntity === undefined) || modalInstance.form.terms === undefined
+        || modalInstance.form.ndaState === undefined;
     }
 });
 
